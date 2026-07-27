@@ -25,7 +25,7 @@ def emailchange(dep,arr,old,new,date2):
     message = {
             "senderAddress": "DoNotReply@b69c3249-d05b-47d9-a9a3-9fc4b60755d6.azurecomm.net",
             "recipients": {
-                "to": [{"address": "autoalpha72110@gmail.com"}]
+                "to": [{"address": "autoalpha72110@gmail.com"},{"address":"rumaizankhan123456@gmail.com"},{"address":"arfathahmed380@gmail.com"}]
             },
             "content": {
                 "subject": f'Frequency changing on {dep} - {arr}',
@@ -40,7 +40,7 @@ def emaildate(dep,arr):
     message = {
             "senderAddress": "DoNotReply@b69c3249-d05b-47d9-a9a3-9fc4b60755d6.azurecomm.net",
             "recipients": {
-                "to": [{"address": "autoalpha72110@gmail.com"}]
+                "to": [{"address": "autoalpha72110@gmail.com"},{"address":"rumaizankhan123456@gmail.com"},{"address":"arfathahmed380@gmail.com"}]
             },
             "content": {
                 "subject": f'Date expired for route',
