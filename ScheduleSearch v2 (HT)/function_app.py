@@ -17,10 +17,11 @@ credential = AzureKeyCredential(os.environ["ACS_EMAIL_KEY"])
 endpoint=os.environ["ACS_ENDPOINT"]
 client = EmailClient(endpoint,credential)
 
-@app.route(route="http_get",methods=["GET"])
-def http_get(req: func.HttpRequest) -> func.HttpResponse:
+@app.route(route="fetch_route",methods=["GET"])
+def fetch_route(req: func.HttpRequest) -> func.HttpResponse:
     table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
     table_client = table_service.get_table_client("MasterTable")
+    
 
     routelist=[]
 
@@ -35,8 +36,7 @@ def http_get(req: func.HttpRequest) -> func.HttpResponse:
 
     return func.HttpResponse(json.dumps(routelist), status_code=200)
 
-
-@app.route(route="http_post", methods=['POST'])
+@app.route(route="add_route", methods=['POST'])
 def http_post(req: func.HttpRequest) -> func.HttpResponse:
     code = req.headers.get('code')
     
@@ -45,12 +45,13 @@ def http_post(req: func.HttpRequest) -> func.HttpResponse:
     if code==e_code:
         table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
         table_client = table_service.get_table_client("MasterTable")
+        table_client2 = table_service.get_table_client("PriceTracker")
 
         data1 = req.get_json()
 
-        
-        dep=data1["DEP"]
-        arr=data1["ARR"]
+
+        dep=data1["DEP"].upper()
+        arr=data1["ARR"].upper()
         date3=data1["DATE"]
         
         api_key= os.environ["Serp_API2"]
@@ -58,16 +59,50 @@ def http_post(req: func.HttpRequest) -> func.HttpResponse:
         data2=response.json()
         best_flights = data2.get("best_flights", [])
         other_flights = data2.get("other_flights", [])
+        all_flights = best_flights + other_flights
 
-        freq=len(best_flights)+len(other_flights)
-        rk=data1["DEP"].upper()+data1["ARR"].upper()+data1["DATE"]
+        rk=dep+arr+date3
+
+        freq=len(all_flights)
+
+        cheapest = min(all_flights, key=lambda f: f.get("price", float("inf")), default=None)
+
+        if cheapest:
+            cheapest_price = cheapest.get("price")
+            cheapest_logo = cheapest.get("airline_logo")
+            leg = cheapest.get("flights", [{}])[0]
+            cheapest_airline = leg.get("airline")
+            cheapest_flight_number = leg.get("flight_number")
+        else:
+            cheapest_price = cheapest_airline = cheapest_logo = cheapest_flight_number = None
+
+        price_insights = data2.get("price_insights", {})
+        lowest_price = price_insights.get("lowest_price")
+        price_level = price_insights.get("price_level")
+        price_history_json = json.dumps(price_insights.get("price_history", []))
+
+        airports_list = data2.get("airports") or [{}]
+        airports = airports_list[0]
+        dep_image = (airports.get("departure") or [{}])[0].get("image")
+        arr_image = (airports.get("arrival") or [{}])[0].get("image")
+
 
         new_entity={"PartitionKey":"Route",
                     "RowKey":rk,
-                    "DEP":data1["DEP"].upper(),
-                    "ARR":data1["ARR"].upper(),
+                    "DEP":dep,
+                    "ARR":arr,
                     "FREQ":freq,
-                    "DATE":data1["DATE"]}
+                    "DATE":date3,
+                    "PRICE_HISTORY":price_history_json,
+                    "LOWEST_PRICE":lowest_price or 0,
+                    "PRICE_LEVEL":price_level or "",
+                    "CHEAPEST_PRICE":cheapest_price or 0,
+                    "CHEAPEST_AIRLINE":cheapest_airline or "",
+                    "CHEAPEST_AIRLINE_LOGO":cheapest_logo or "",
+                    "CHEAPEST_FLIGHT_NUMBER":cheapest_flight_number or "",
+                    "DEP_IMG":dep_image or "",
+                    "ARR_IMG":arr_image or ""
+                }
         
         try:
             table_client.create_entity(new_entity)
@@ -77,13 +112,19 @@ def http_post(req: func.HttpRequest) -> func.HttpResponse:
         message = {
             "senderAddress": "DoNotReply@b69c3249-d05b-47d9-a9a3-9fc4b60755d6.azurecomm.net",
             "recipients": {
-                "to": [{"address": "autoalpha72110@gmail.com"},{"address":"rumaizankhan123456@gmail.com"},{"address":"arfathahmed380@gmail.com"}]
+                "bcc": [
+                    {"address": "autoalpha72110@gmail.com"}
+                ]
             },
             "content": {
-                "subject": f'New Prompt Added',
-                "plainText": f'A new prompt has been added on the app, for:\n\nRoute: {dep}-{arr}\nFrequency (as on date of addition): {freq}\nDate: {date3}',
+                "subject": "New Prompt Added",
+                "plainText": (
+                    f"A new prompt has been added on the app, for:\n\n"
+                    f"Route: {dep} - {arr}\n"
+                    f"Frequency (as on date of addition): {freq}\n"
+                    f"Date: {date3}"
+                ),
             },
-            
         }
         poller = client.begin_send(message)
 
@@ -91,7 +132,7 @@ def http_post(req: func.HttpRequest) -> func.HttpResponse:
     else:
         return func.HttpResponse("Access denied", status_code=403)
     
-@app.route(route="http_del",methods=["DELETE"])
+@app.route(route="delete_route",methods=["DELETE"])
 def http_del(req: func.HttpRequest) -> func.HttpResponse:
     code = req.headers.get('code')
     
@@ -113,7 +154,10 @@ def http_del(req: func.HttpRequest) -> func.HttpResponse:
         message = {
             "senderAddress": "DoNotReply@b69c3249-d05b-47d9-a9a3-9fc4b60755d6.azurecomm.net",
             "recipients": {
-                "to": [{"address": "autoalpha72110@gmail.com"},{"address":"rumaizankhan123456@gmail.com"},{"address":"arfathahmed380@gmail.com"}]
+                "bcc": [
+                            {"address": "autoalpha72110@gmail.com"}
+                            
+                        ]
             },
             "content": {
                 "subject": f'Prompt Deleted',
