@@ -45,7 +45,7 @@ def http_post(req: func.HttpRequest) -> func.HttpResponse:
     if code==e_code:
         table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
         table_client = table_service.get_table_client("MasterTable")
-        table_client2 = table_service.get_table_client("PriceTracker")
+        table_client2 = table_service.get_table_client("AirlineDetails")
 
         data1 = req.get_json()
 
@@ -103,6 +103,28 @@ def http_post(req: func.HttpRequest) -> func.HttpResponse:
                     "DEP_IMG":dep_image or "",
                     "ARR_IMG":arr_image or ""
                 }
+
+        for flight in all_flights:
+            segment = flight["flights"][0]
+
+            airline=segment["airline"]
+            airline_logo=flight.get("airline_logo", "")
+            airplane=segment["airplane"]
+            rk2=segment["flight_number"]
+
+            dep2=segment["departure_airport"]["time"]
+            arr2=segment["arrival_airport"]["time"]
+
+
+            new_entity2 = {"PartitionKey":rk,
+                            "RowKey":rk2,
+                            "AIRLINE":airline,
+                            "AIRCRAFT":airplane,
+                            "DEPT":dep2,
+                            "ARRT":arr2,
+                            "AIRLINE_LOGO":airline_logo}
+            table_client2.create_entity(new_entity2)
+            
         
         try:
             table_client.create_entity(new_entity)
