@@ -37,7 +37,7 @@ def fetch_route(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse(json.dumps(routelist), status_code=200)
 
 @app.route(route="add_route", methods=['POST'])
-def http_post(req: func.HttpRequest) -> func.HttpResponse:
+def add_route(req: func.HttpRequest) -> func.HttpResponse:
     code = req.headers.get('code')
     
     e_code=os.environ.get('ACCESS_CODE')
@@ -155,7 +155,7 @@ def http_post(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("Access denied", status_code=403)
     
 @app.route(route="delete_route",methods=["DELETE"])
-def http_del(req: func.HttpRequest) -> func.HttpResponse:
+def delete_route(req: func.HttpRequest) -> func.HttpResponse:
     code = req.headers.get('code')
     
     e_code=os.environ.get('ACCESS_CODE')
