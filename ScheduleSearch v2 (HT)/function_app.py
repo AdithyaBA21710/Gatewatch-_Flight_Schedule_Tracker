@@ -32,9 +32,26 @@ def fetch_route(req: func.HttpRequest) -> func.HttpResponse:
                     "DEP":entity["DEP"],
                     "ARR":entity["ARR"],
                     "FREQ":entity["FREQ"],
-                    "DATE":entity["DATE"]})
+                    "DATE":entity["DATE"],
+                    "PRICE_HISTORY":entity["PRICE_HISTORY"],
+                    "LOWEST_PRICE":entity["LOWEST_PRICE"],
+                    "PRICE_LEVEL":entity["PRICE_LEVEL"],
+                    "CHEAPEST_PRICE":entity["CHEAPEST_PRICE"],
+                    "CHEAPEST_AIRLINE":entity["CHEAPEST_AIRLINE"],
+                    "CHEAPEST_AIRLINE_LOGO":entity["CHEAPEST_LOGO"],
+                    "CHEAPEST_FLIGHT_NUMBER":entity["CHEAPEST_FLIGHT_NUMBER"],
+                    "DEP_IMG":entity["DEP_IMG"],
+                    "ARR_IMG":entity["ARR_IMG"]})
 
     return func.HttpResponse(json.dumps(routelist), status_code=200)
+
+@app.route(route="fetch_flight",methods=['GET'])
+def fetch_flight(req: func.HttpRequest) -> func.HttpResponse:
+    table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
+    table_client = table_service.get_table_client("AirlineDetails")
+
+
+
 
 @app.route(route="add_route", methods=['POST'])
 def add_route(req: func.HttpRequest) -> func.HttpResponse:
