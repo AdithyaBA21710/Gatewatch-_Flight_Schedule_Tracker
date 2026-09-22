@@ -38,7 +38,7 @@ def fetch_route(req: func.HttpRequest) -> func.HttpResponse:
                     "PRICE_LEVEL":entity["PRICE_LEVEL"],
                     "CHEAPEST_PRICE":entity["CHEAPEST_PRICE"],
                     "CHEAPEST_AIRLINE":entity["CHEAPEST_AIRLINE"],
-                    "CHEAPEST_AIRLINE_LOGO":entity["CHEAPEST_LOGO"],
+                    "CHEAPEST_AIRLINE_LOGO":entity["CHEAPEST_AIRLINE_LOGO"],
                     "CHEAPEST_FLIGHT_NUMBER":entity["CHEAPEST_FLIGHT_NUMBER"],
                     "DEP_IMG":entity["DEP_IMG"],
                     "ARR_IMG":entity["ARR_IMG"]})
