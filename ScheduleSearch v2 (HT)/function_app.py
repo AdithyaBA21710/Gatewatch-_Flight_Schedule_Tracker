@@ -50,8 +50,26 @@ def fetch_flight(req: func.HttpRequest) -> func.HttpResponse:
     table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
     table_client = table_service.get_table_client("AirlineDetails")
 
+    dep=req.params.get("DEP")
+    arr=req.params.get("ARR")
+    date=req.params.get("DATE")
+    pk=dep+arr+date 
 
+    entities=table_client.list_entities()
 
+    routelist2=[]
+
+    for entity in entities:
+        if pk==entity["PartitionKey"]:
+            routelist2.append({"PartitionKey": entity["PartitionKey"],
+                                "RowKey": entity["RowKey"],
+                                "Airline":entity["AIRLINE"],
+                                "Aircraft":entity["AIRCRAFT"],
+                                "DEPT":entity["DEPT"],
+                                "ARRT":entity["ARRT"],
+                                "AIRLINE_LOGO":entity["AIRLINE_LOGO"]})
+
+    return func.HttpResponse(json.dumps(routelist2), status_code=200)
 
 @app.route(route="add_route", methods=['POST'])
 def add_route(req: func.HttpRequest) -> func.HttpResponse:
