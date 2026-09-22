@@ -62,12 +62,13 @@ def fetch_flight(req: func.HttpRequest) -> func.HttpResponse:
     for entity in entities:
         if pk==entity["PartitionKey"]:
             routelist2.append({"PartitionKey": entity["PartitionKey"],
+                               "Flight_Number":entity["RowKey"],
                                 "RowKey": entity["RowKey"],
                                 "Airline":entity["AIRLINE"],
                                 "Aircraft":entity["AIRCRAFT"],
                                 "DEPT":entity["DEPT"],
                                 "ARRT":entity["ARRT"],
-                                "AIRLINE_LOGO":entity["AIRLINE_LOGO"]})
+                                "Airline_Logo":entity["AIRLINE_LOGO"]})
 
     return func.HttpResponse(json.dumps(routelist2), status_code=200)
 
