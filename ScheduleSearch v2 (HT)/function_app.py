@@ -199,6 +199,7 @@ def delete_route(req: func.HttpRequest) -> func.HttpResponse:
     if code==e_code:
         table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
         table_client = table_service.get_table_client("MasterTable")
+        table_client2 = table_service.get_table_client("AirlineDetails")
 
         partition_key = req.params.get("PartitionKey")
         row_key = req.params.get("RowKey")
@@ -208,6 +209,11 @@ def delete_route(req: func.HttpRequest) -> func.HttpResponse:
         arr=data["ARR"]
         freq=data["FREQ"]
         date=data["DATE"]
+        price=data["CHEAPEST_PRICE"]
+
+        entities = table_client2.query_entities(query_filter=f"PartitionKey eq '{row_key}'")
+        for entity in entities:
+            table_client2.delete_entity(partition_key=entity["PartitionKey"], row_key=entity["RowKey"])
 
         message = {
             "senderAddress": "DoNotReply@b69c3249-d05b-47d9-a9a3-9fc4b60755d6.azurecomm.net",
@@ -219,7 +225,7 @@ def delete_route(req: func.HttpRequest) -> func.HttpResponse:
             },
             "content": {
                 "subject": f'Prompt Deleted',
-                "plainText": f'A prompt has been deleted from the app, for:\n\nRoute: {dep}-{arr}\nFrequency (as on date of deletion): {freq}\nDate: {date}',
+                "plainText": f'A prompt has been deleted from the app, for:\n\nRoute: {dep}-{arr}\nFrequency (as on date of deletion): {freq}\nDate: {date}\nPrice (as on date of deletion): {price}',
             },
             
         }
