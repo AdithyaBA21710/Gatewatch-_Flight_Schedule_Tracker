@@ -225,7 +225,7 @@ def delete_route(req: func.HttpRequest) -> func.HttpResponse:
             },
             "content": {
                 "subject": f'Prompt Deleted',
-                "plainText": f'A prompt has been deleted from the app, for:\n\nRoute: {dep}-{arr}\nFrequency (as on date of deletion): {freq}\nDate: {date}\nPrice (as on date of deletion): {price}',
+                "plainText": f'A prompt has been deleted from the app, for:\n\nRoute: {dep}-{arr}\nFrequency (as on date of deletion): {freq}\nDate: {date}\nPrice (as on date of deletion in INR): {price}',
             },
             
         }
