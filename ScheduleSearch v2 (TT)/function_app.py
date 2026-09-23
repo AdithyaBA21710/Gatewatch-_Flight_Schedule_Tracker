@@ -70,7 +70,7 @@ def emailerror():
     logging.info(f"Email sent for error")
     poller = client.begin_send(message)
 
-def search (dep_id,arr_id, date3):
+def search1 (dep_id,arr_id, date3):
     api_key= os.environ["SERPAPI_KEY"]
     response = requests.get("https://serpapi.com/search.json?engine=google_flights&departure_id="+dep_id+"&arrival_id="+arr_id+"&gl=in&hl=en&currency=INR&type=2&outbound_date="+date3+"&show_hidden=true&adults=1&stops=1&api_key="+api_key)
 
@@ -82,15 +82,23 @@ def search (dep_id,arr_id, date3):
 
     best_flights = data.get("best_flights", [])
     other_flights = data.get("other_flights", [])
+    all_flights = best_flights + other_flights
 
-    if best_flights or other_flights:
-        return(len(best_flights)+len(other_flights))
-    else:
-        return (0)
+    rk=dep_id+arr_id+date3
+    
+    freq=len(all_flights)
+    
+    cheapest = min(all_flights, key=lambda f: f.get("price", float("inf")), default=None)
+    cheapest_price = cheapest.get("price")
+    cheapest_logo = cheapest.get("airline_logo")
+    leg = cheapest.get("flights", [{}])[0]
+    cheapest_airline = leg.get("airline")
+    cheapest_flight_number = leg.get("flight_number")
 
 def dictcheck():
     table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
     table_client = table_service.get_table_client("MasterTable")
+    table_client2 = table_service.get_table_client("AirlineDetails")
 
     entities=table_client.list_entities()
     for entity in entities:
@@ -100,8 +108,12 @@ def dictcheck():
         arr=entity["ARR"]
         date1=entity["DATE"]
         freq=int(entity["FREQ"])
+        cheapest_price=int(entity["CHEAPEST_PRICE"])
+        cheapest_airline=entity["CHEAPEST_AIRLINE"]
+        cheapest_airline_logo=entity["CHEAPEST_AIRLINE_LOGO "]
 
-        newfreq=search(dep,arr,date1)
+        search1(dep,arr,date1,cheapest_price,cheapest_airline,cheapest_airline_logo)
+        search2()
 
         if newfreq!=freq and newfreq!=None:
             entity["FREQ"] = newfreq
