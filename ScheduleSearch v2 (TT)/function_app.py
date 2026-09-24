@@ -159,6 +159,7 @@ def dictcheck():
             entity["CHEAPEST_AIRLINE"]=cheapest_airline2
             entity["CHEAPEST_AIRLINE_LOGO"]=cheapest_logo2
             entity["CHEAPEST_FLIGHT_NUMBER"]=cheapest_flight_number2
+            table_client.update_entity(entity)
             emailprice(dep,arr,cheapest_price,cheapest_price2,cheapest_airline,cheapest_airline2,cheapest_airline_logo,cheapest_logo2)
 
         entity2 = table_client2.get_entity()
