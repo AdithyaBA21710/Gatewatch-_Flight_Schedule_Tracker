@@ -146,8 +146,19 @@ def dictcheck():
         leg = cheapest.get("flights", [{}])[0]
         cheapest_airline2 = leg.get("airline")
         cheapest_flight_number2 = leg.get("flight_number")
+        price_insights = data.get("price_insights", {})
+        lowest_price2 = price_insights.get("lowest_price")
+        price_level2 = price_insights.get("price_level")
+        price_history_json2 = json.dumps(price_insights.get("price_history", []))
 
         if cheapest_airline!=cheapest_airline2 or cheapest_price!=cheapest_price2:
+            entity["PRICE_HISTORY"]=price_history_json2
+            entity["LOWEST_PRICE"]=lowest_price2
+            entity["PRICE_LEVEL"]=price_level2
+            entity["CHEAPEST_PRICE"]=cheapest_price2
+            entity["CHEAPEST_AIRLINE"]=cheapest_airline2
+            entity["CHEAPEST_AIRLINE_LOGO"]=cheapest_logo2
+            entity["CHEAPEST_FLIGHT_NUMBER"]=cheapest_flight_number2
             emailprice(dep,arr,cheapest_price,cheapest_price2,cheapest_airline,cheapest_airline2,cheapest_airline_logo,cheapest_logo2)
 
         entity2 = table_client2.get_entity()
