@@ -22,6 +22,10 @@ app = func.FunctionApp()
 
 
 def emailfreq(dep,arr,old,new,date2):
+    if old<new:
+        nameplate="increasing"
+    else:
+        nameplate="decreasing"
     message = {
             "senderAddress": "DoNotReply@b69c3249-d05b-47d9-a9a3-9fc4b60755d6.azurecomm.net",
             "recipients": {
@@ -30,8 +34,8 @@ def emailfreq(dep,arr,old,new,date2):
                         ]
             },
             "content": {
-                "subject": f'Frequency changing on {dep} - {arr}',
-                "plainText": f'Frequency changing on\n\nRoute:{dep} - {arr}\nOld Frequency: {old}x daily\nNew Frequency: {new}x daily\nDate: {date2}',
+                "subject": f'Frequency is {nameplate} on {dep} - {arr}',
+                "plainText": f'Frequency is {nameplate} on\n\nRoute:{dep} - {arr}\nOld Frequency: {old}x daily\nNew Frequency: {new}x daily\nDate: {date2}',
             },
             
         }
@@ -128,7 +132,7 @@ def dictcheck():
         best_flights = data.get("best_flights", [])
         other_flights = data.get("other_flights", [])
         all_flights = best_flights + other_flights
-        
+
         new_freq=len(all_flights)
 
         if freq!=new_freq:
