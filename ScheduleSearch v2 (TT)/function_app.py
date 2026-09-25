@@ -167,7 +167,9 @@ def dictcheck():
         if date.fromisoformat(date1) <= date.today():
             emaildate(dep,arr)
             table_client.delete_entity(partition_key=pk1, row_key=rk1)
-            #table_client2.delete_entity()
+            for entity2 in table_client2.list_entities():
+                if entity2["PartitionKey"]==rk1:
+                    table_client2.delete_entity(partition_key=rk1,row_key=entity["RowKey"])
 
 
 @app.timer_trigger(schedule="0 30 3 * * *", arg_name="myTimer", run_on_startup=False,
