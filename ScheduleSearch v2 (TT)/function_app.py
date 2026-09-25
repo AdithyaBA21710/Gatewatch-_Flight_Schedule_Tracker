@@ -94,12 +94,6 @@ def emailerror():
         }
     logging.info(f"Email sent for error")
     poller = client.begin_send(message)
-
-"""
-def search1 (dep_id,arr_id, date3):
-    
-    
-"""
     
 def dictcheck():
     table_service = TableServiceClient.from_connection_string(conn_str=storage_key)
@@ -118,7 +112,14 @@ def dictcheck():
         freq=int(entity["FREQ"])
         cheapest_price=int(entity["CHEAPEST_PRICE"])
         cheapest_airline=entity["CHEAPEST_AIRLINE"]
-        cheapest_airline_logo=entity["CHEAPEST_AIRLINE_LOGO "]
+        cheapest_airline_logo=entity["CHEAPEST_AIRLINE_LOGO"]
+
+        if date.fromisoformat(date1) <= date.today():
+                emaildate(dep,arr)
+                table_client.delete_entity(partition_key=pk1, row_key=rk1)
+                for entity2 in table_client2.list_entities():
+                    if entity2["PartitionKey"]==rk1:
+                        table_client2.delete_entity(partition_key=rk1,row_key=entity2["RowKey"])
 
         
         response = requests.get("https://serpapi.com/search.json?engine=google_flights&departure_id="+dep+"&arrival_id="+arr+"&gl=in&hl=en&currency=INR&type=2&outbound_date="+date1+"&show_hidden=true&adults=1&stops=1&api_key="+api_key)
@@ -162,14 +163,6 @@ def dictcheck():
             table_client.update_entity(entity)
             emailprice(dep,arr,cheapest_price,cheapest_price2,cheapest_airline,cheapest_airline2,cheapest_airline_logo,cheapest_logo2)
 
-        entity2 = table_client2.get_entity()
-
-        if date.fromisoformat(date1) <= date.today():
-            emaildate(dep,arr)
-            table_client.delete_entity(partition_key=pk1, row_key=rk1)
-            for entity2 in table_client2.list_entities():
-                if entity2["PartitionKey"]==rk1:
-                    table_client2.delete_entity(partition_key=rk1,row_key=entity["RowKey"])
 
 
 @app.timer_trigger(schedule="0 30 3 * * *", arg_name="myTimer", run_on_startup=False,
