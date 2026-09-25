@@ -126,7 +126,7 @@ def dictcheck():
         
         if response.status_code != 200:
             emailerror()
-            return None
+            return
         
         data=response.json()
         
@@ -139,6 +139,23 @@ def dictcheck():
         if freq!=new_freq:
             entity["FREQ"]=new_freq
             table_client.update_entity(entity)
+            for flight in all_flights:
+                segment = flight["flights"][0]
+            
+                airline=segment["airline"]
+                airline_logo=flight.get("airline_logo", "")
+                airplane=segment["airplane"]
+                rk2=segment["flight_number"]
+            
+                dep2=segment["departure_airport"]["time"]
+                arr2=segment["arrival_airport"]["time"]
+            new_entity={["PartitionKey"]=,
+                        ["RowKey"]=,
+                        ["AIRLINE"]=,
+                        ["AIRCRAFT"]=,
+                        ["DEPT"]=,
+                        ["ARRT"]=,
+                        ["AIRLINE_LOGO"]=}
             emailfreq(dep,arr,freq,new_freq,date1)
 
         cheapest = min(all_flights, key=lambda f: f.get("price", float("inf")), default=None)
